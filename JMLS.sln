@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{316936FA-9BF2-466B-A86B-300A35680533}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{24EDF083-0645-42E1-8261-CE58E55E69BD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{50D8F71A-2EF1-47A6-BFB5-66351C6FEF14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JMLS.RestAPI", "src\JMLS.RestAPI\JMLS.RestAPI.csproj", "{27B8ACD5-6418-430A-BA3B-A0D8A91E400E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{27B8ACD5-6418-430A-BA3B-A0D8A91E400E} = {316936FA-9BF2-466B-A86B-300A35680533}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{27B8ACD5-6418-430A-BA3B-A0D8A91E400E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27B8ACD5-6418-430A-BA3B-A0D8A91E400E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27B8ACD5-6418-430A-BA3B-A0D8A91E400E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27B8ACD5-6418-430A-BA3B-A0D8A91E400E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
