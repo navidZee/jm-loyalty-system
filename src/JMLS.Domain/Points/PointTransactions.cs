@@ -1,6 +1,6 @@
 namespace JMLS.Domain.Points;
 
-public abstract class PointTransaction
+public abstract class PointTransaction  : EntityBase
 {
     public int Id { get; set; }
     public int PointId { get; set; }

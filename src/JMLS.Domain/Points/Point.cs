@@ -2,7 +2,7 @@ using JMLS.Domain.Customers;
 
 namespace JMLS.Domain.Points;
 
-public class Point
+public class Point 
 {
     public int Id { get; set; }
     public int CustomerId { get; set; }
