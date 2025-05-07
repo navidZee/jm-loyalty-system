@@ -6,7 +6,7 @@ public class RewardMustBeProvidedRule(Reward reward) : IBusinessRule
 {
     public bool IsBroken()
     {
-        return reward is { Id: <= 0 };
+        return reward == null!;
     }
 
     public string Message => "Reward must be provided";

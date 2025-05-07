@@ -8,6 +8,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{24EDF083-0645-42E1-8261-CE58E55E69BD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{50D8F71A-2EF1-47A6-BFB5-66351C6FEF14}"
+	ProjectSection(SolutionItems) = preProject
+		docs\code-export-5-8-2025-2_25_00-AM.txt = docs\code-export-5-8-2025-2_25_00-AM.txt
+		docs\diagram-export-5-8-2025-2_25_04-AM.svg = docs\diagram-export-5-8-2025-2_25_04-AM.svg
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JMLS.RestAPI", "src\JMLS.RestAPI\JMLS.RestAPI.csproj", "{27B8ACD5-6418-430A-BA3B-A0D8A91E400E}"
 EndProject

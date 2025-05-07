@@ -6,7 +6,7 @@ public class InteractionTypeMustBeProvidedRule(InteractionType interactionType) 
 {
     public bool IsBroken()
     {
-        return interactionType is { Id: <= 0 };
+        return interactionType == null!;
     }
 
     public string Message => "Interaction type must be provided";
