@@ -1,0 +1,56 @@
+// title
+title Customer Points and Rewards Domain Model
+
+// define tables
+customers [icon: user, color: yellow]{
+  id string pk
+}
+
+interaction_types [icon: activity, color: orange]{
+  id string pk
+  key string
+  description string
+  amount int
+  expiration_period_days int // nullable, days until points expire
+}
+
+points [icon: star, color: gold]{
+  id string pk
+  customer_id string
+}
+
+point_transactions [icon: repeat, color: lightblue]{
+  id string pk
+  point_id string
+  amount int
+  type string // 'earned' or 'spent'
+  created_at timestamp
+}
+
+point_earned [icon: arrow-up, color: green]{
+  id string pk
+  point_transaction_id string
+  interaction_type_id string
+  expiration_date date // nullable
+}
+
+point_spent [icon: arrow-down, color: red]{
+  id string pk
+  point_transaction_id string
+  reward_id string
+}
+
+rewards [icon: gift, color: purple]{
+  id string pk
+  reference_id string
+  reference_type string
+  amount int
+}
+
+// define relationships
+points.customer_id > customers.id
+point_transactions.point_id > points.id
+point_earned.point_transaction_id - point_transactions.id
+point_earned.interaction_type_id > interaction_types.id
+point_spent.point_transaction_id - point_transactions.id
+point_spent.reward_id > rewards.id
