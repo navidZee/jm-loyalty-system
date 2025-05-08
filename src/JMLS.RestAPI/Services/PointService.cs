@@ -8,6 +8,7 @@ namespace JMLS.RestAPI.Services;
 public interface IPointService
 {
     public Task RequestToEarn(RequestToEarnDto requestToEarnDto, CancellationToken cancellationToken);
+    public Task RequestToSpent(RequestToSpentDto requestToSpentDto, CancellationToken cancellationToken);
 
     public Task<int> GetCustomerPointsBalance(int customerId, CancellationToken cancellationToken);
 }
@@ -27,6 +28,22 @@ public class PointService(JmlsDbContext jmlsDbContext) : IPointService
                 cancellationToken);
 
         point.Earned(activity!, requestToEarnDto.ReferenceId);
+        jmlsDbContext.Points.Update(point);
+        await jmlsDbContext.SaveChangesAsync(cancellationToken);
+    }   
+    
+    public async Task RequestToSpent(RequestToSpentDto requestToEarnDto,
+        CancellationToken cancellationToken)
+    {
+        var point = await jmlsDbContext.Points.Include(d => d.PointsEarned).Include(d => d.PointsSpent)
+            .FirstOrDefaultAsync(d => d.CustomerId == requestToEarnDto.CustomerId,
+                cancellationToken);
+        point ??= await CreateCustomerPoint(requestToEarnDto.CustomerId, cancellationToken);
+
+        var offer = await jmlsDbContext.Offers.FirstOrDefaultAsync(d => d.Id == requestToEarnDto.OfferId,
+                cancellationToken);
+
+        point.Spent(offer!);
         jmlsDbContext.Points.Update(point);
         await jmlsDbContext.SaveChangesAsync(cancellationToken);
     }
