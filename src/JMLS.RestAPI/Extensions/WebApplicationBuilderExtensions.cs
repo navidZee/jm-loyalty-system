@@ -5,8 +5,10 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using JMLS.RestAPI.Infrastructure.Persistence.SQL;
 using JMLS.RestAPI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
@@ -53,7 +55,42 @@ public static class WebApplicationBuilderExtensions
                     }
                 });
 
-            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+            {
+                Description = "JWT Authorization header using the Bearer scheme",
+                Name = "Authorization",
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows()
+                {
+                    Implicit = new OpenApiOAuthFlow()
+                    {
+                        AuthorizationUrl = new Uri(builder.Configuration["Keycloak:AuthorizationUrl"]!),
+                        Scopes = new Dictionary<string, string>
+                        {
+                            { "openid", "openid" },
+                            { "profile", "profile" }
+                        }
+                    }
+                }
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Id = JwtBearerDefaults.AuthenticationScheme,
+                            Type = ReferenceType.SecurityScheme
+                        },
+                        In = ParameterLocation.Header,
+                        Name = "Bearer",
+                        Scheme = "Bearer"
+                    },
+                    []
+                }
+            });
 
             options.DocInclusionPredicate((name, api) => true);
         });
@@ -64,7 +101,22 @@ public static class WebApplicationBuilderExtensions
             options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
         builder.Services.AddScoped<IPointService, PointService>();
-        
+        builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.RequireHttpsMetadata = false;
+            options.Audience = builder.Configuration["Authentication:Audience"];
+            options.MetadataAddress = builder.Configuration["Authentication:MetadataAddress"]!;
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {
+                ValidIssuer = builder.Configuration["Authentication:ValidIssuer"]
+            };
+        });
+
+        builder.Services.AddAuthorization();
+
         return builder;
     }
 }

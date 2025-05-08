@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JMLS.RestAPI.Migrations
 {
     [DbContext(typeof(JmlsDbContext))]
-    [Migration("20250508163041_Initial")]
+    [Migration("20250508185642_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -79,13 +79,33 @@ namespace JMLS.RestAPI.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Unique identifier for the customer");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDateTime")
+                        .HasComment("Date and time when the customer record was created");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ModifiedDateTime")
+                        .HasComment("Date and time when the customer record was last modified");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasComment("Customer username");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Customers");
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("JMLS.Domain.Offers.Offer", b =>

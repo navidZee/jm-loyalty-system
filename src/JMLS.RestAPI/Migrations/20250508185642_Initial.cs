@@ -34,8 +34,11 @@ namespace JMLS.RestAPI.Migrations
                 name: "Customers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1")
+                    Id = table.Column<int>(type: "int", nullable: false, comment: "Unique identifier for the customer")
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Username = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false, comment: "Customer username"),
+                    CreatedDateTime = table.Column<DateTime>(type: "datetime2", nullable: false, comment: "Date and time when the customer record was created"),
+                    ModifiedDateTime = table.Column<DateTime>(type: "datetime2", nullable: false, comment: "Date and time when the customer record was last modified")
                 },
                 constraints: table =>
                 {
@@ -143,6 +146,12 @@ namespace JMLS.RestAPI.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_Username",
+                table: "Customers",
+                column: "Username",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Points_CustomerId",

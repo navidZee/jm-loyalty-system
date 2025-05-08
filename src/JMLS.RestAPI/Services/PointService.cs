@@ -9,7 +9,6 @@ public interface IPointService
 {
     public Task RequestToEarn(RequestToEarnDto requestToEarnDto, CancellationToken cancellationToken);
     public Task RequestToSpent(RequestToSpentDto requestToSpentDto, CancellationToken cancellationToken);
-
     public Task<int> GetCustomerPointsBalance(int customerId, CancellationToken cancellationToken);
 }
 

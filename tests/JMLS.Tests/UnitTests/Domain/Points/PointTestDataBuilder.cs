@@ -15,10 +15,7 @@ public class PointTestDataBuilder
 
     public Point Build()
     {
-        var point = new Point(_customerId)
-        {
-            Customer = new Customer() { Id = _customerId }
-        };
+        var point = new Point(_customerId);
         return point;
     }
 }

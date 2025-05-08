@@ -10,25 +10,27 @@ public static class PointsEndpoints
 {
     public static WebApplication MapPointEndpoints(this WebApplication app)
     {
-        var root = app.MapGroup("/api/customers/{id:int}/points")
+        var root = app.MapGroup("/api/points")
             .WithTags("CustomerPoints")
             .WithDescription("Actions that describe the customer points")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
         _ = root.MapGet("/balance", GetCustomerPointsBalance)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithSummary("Returns the balance")
             .Produces<int>()
-            .WithDescription("Get customers balance");
+            .WithDescription("Get customers balance")
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
 
         _ = root.MapPost("/earn", RequestToEarn)
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .ProducesValidationProblem()
-            .WithSummary("Applay customers earned")
-            .WithDescription("Applay customers earned");
+            .WithSummary("Apply customers earned")
+            .WithDescription("Apply customers earned")
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
         
         _ = root.MapPost("/spent", RequestToSpent)
             .Produces(StatusCodes.Status200OK)
@@ -36,20 +38,23 @@ public static class PointsEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .ProducesValidationProblem()
-            .WithSummary("Applay customers spent")
-            .WithDescription("Applay customers spent");
+            .WithSummary("Apply customers spent")
+            .WithDescription("Apply customers spent")
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
 
         return app;
     }
 
-    private static async Task<IResult> GetCustomerPointsBalance([FromRoute] int id,
+    private static async Task<IResult> GetCustomerPointsBalance(
         [FromServices] IPointService pointService,
+        [FromServices] ICustomerService customerService,
+        HttpContext context,
         CancellationToken cancellationToken)
     {
         try
         {
-            var balance =
-                await pointService.GetCustomerPointsBalance(IdentityExtensions.GetUserId(), cancellationToken);
+            var userId = await context.User.GetOrCreateUserIdAsync(customerService);
+            var balance = await pointService.GetCustomerPointsBalance(userId, cancellationToken);
             return Results.Ok(balance);
         }
         catch (Exception e)
@@ -58,13 +63,16 @@ public static class PointsEndpoints
         }
     }
 
-    private static async Task<IResult> RequestToEarn([FromBody] RequestToEarnDto requestToEarnDto,
-        [FromRoute] int id, [FromServices] IPointService pointService,
+    private static async Task<IResult> RequestToEarn(
+        [FromBody] RequestToEarnDto requestToEarnDto,
+        [FromServices] IPointService pointService,
+        [FromServices] ICustomerService customerService,
+        HttpContext context,
         CancellationToken cancellationToken)
     {
         try
         {
-            requestToEarnDto.CustomerId = IdentityExtensions.GetUserId();
+            requestToEarnDto.CustomerId = await context.User.GetOrCreateUserIdAsync(customerService);
             await pointService.RequestToEarn(requestToEarnDto, cancellationToken);
             return Results.Ok();
         }
@@ -78,13 +86,16 @@ public static class PointsEndpoints
         }
     }
     
-    private static async Task<IResult> RequestToSpent([FromBody] RequestToSpentDto requestToSpentDto,
-        [FromRoute] int id, [FromServices] IPointService pointService,
+    private static async Task<IResult> RequestToSpent(
+        [FromBody] RequestToSpentDto requestToSpentDto,
+        [FromServices] IPointService pointService,
+        [FromServices] ICustomerService customerService,
+        HttpContext context,
         CancellationToken cancellationToken)
     {
         try
         {
-            requestToSpentDto.CustomerId = IdentityExtensions.GetUserId();
+            requestToSpentDto.CustomerId = await context.User.GetOrCreateUserIdAsync(customerService);
             await pointService.RequestToSpent(requestToSpentDto, cancellationToken);
             return Results.Ok();
         }
