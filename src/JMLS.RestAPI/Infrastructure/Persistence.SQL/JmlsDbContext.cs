@@ -9,7 +9,6 @@ namespace JMLS.RestAPI.Infrastructure.Persistence.SQL;
 public sealed class JmlsDbContext(DbContextOptions<JmlsDbContext> options) : DbContext(options)
 {
     public DbSet<Customer> Customers { get; set; }
-    public DbSet<Point> Points { get; set; }
     public DbSet<Offer> Offers { get; set; }
     public DbSet<Activity> Activities { get; set; }
     

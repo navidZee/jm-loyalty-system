@@ -159,43 +159,6 @@ namespace JMLS.RestAPI.Migrations
                     b.ToTable("Offers", (string)null);
                 });
 
-            modelBuilder.Entity("JMLS.Domain.Points.Point", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasComment("Unique identifier for the points record");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Balance")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasComment("Total available points for the customer");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int")
-                        .HasComment("Identifier of the customer who owns this points record");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedDateTime")
-                        .HasComment("Date and time when this points record was created");
-
-                    b.Property<DateTime>("DateModified")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("ModifiedDateTime")
-                        .HasComment("Date and time when this points record was last updated");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId")
-                        .IsUnique();
-
-                    b.ToTable("Points", (string)null);
-                });
-
             modelBuilder.Entity("JMLS.Domain.Points.PointEarned", b =>
                 {
                     b.Property<int>("Id")
@@ -206,6 +169,9 @@ namespace JMLS.RestAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ActivityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DateCreated")
@@ -222,9 +188,6 @@ namespace JMLS.RestAPI.Migrations
                         .HasColumnType("datetime2")
                         .HasComment("Expiration date of the earned points, if applicable");
 
-                    b.Property<int>("PointId")
-                        .HasColumnType("int");
-
                     b.Property<int>("PointValue")
                         .HasColumnType("int")
                         .HasColumnName("PointsReward")
@@ -238,7 +201,7 @@ namespace JMLS.RestAPI.Migrations
 
                     b.HasIndex("ActivityId");
 
-                    b.HasIndex("PointId");
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("PointsEarned", (string)null);
                 });
@@ -251,6 +214,9 @@ namespace JMLS.RestAPI.Migrations
                         .HasComment("Unique identifier for the point account");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2")
@@ -265,9 +231,6 @@ namespace JMLS.RestAPI.Migrations
                     b.Property<int>("OfferId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PointId")
-                        .HasColumnType("int");
-
                     b.Property<int>("PointValue")
                         .HasColumnType("int")
                         .HasColumnName("PointsCost")
@@ -275,23 +238,11 @@ namespace JMLS.RestAPI.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomerId");
+
                     b.HasIndex("OfferId");
 
-                    b.HasIndex("PointId");
-
                     b.ToTable("PointsSpent", (string)null);
-                });
-
-            modelBuilder.Entity("JMLS.Domain.Points.Point", b =>
-                {
-                    b.HasOne("JMLS.Domain.Customers.Customer", "Customer")
-                        .WithOne("Point")
-                        .HasForeignKey("JMLS.Domain.Points.Point", "CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Points_Customer");
-
-                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("JMLS.Domain.Points.PointEarned", b =>
@@ -303,36 +254,36 @@ namespace JMLS.RestAPI.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_PointsEarned_Activity");
 
-                    b.HasOne("JMLS.Domain.Points.Point", "Point")
+                    b.HasOne("JMLS.Domain.Customers.Customer", "Customer")
                         .WithMany("PointsEarned")
-                        .HasForeignKey("PointId")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_PointsEarned_Point");
 
                     b.Navigation("Activity");
 
-                    b.Navigation("Point");
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("JMLS.Domain.Points.PointSpent", b =>
                 {
+                    b.HasOne("JMLS.Domain.Customers.Customer", "Customer")
+                        .WithMany("PointsSpent")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_PointsSpent_Customer");
+
                     b.HasOne("JMLS.Domain.Offers.Offer", "Offer")
                         .WithMany("PointsSpent")
                         .HasForeignKey("OfferId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("JMLS.Domain.Points.Point", "Point")
-                        .WithMany("PointsSpent")
-                        .HasForeignKey("PointId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_PointsSpent_Point");
+                    b.Navigation("Customer");
 
                     b.Navigation("Offer");
-
-                    b.Navigation("Point");
                 });
 
             modelBuilder.Entity("JMLS.Domain.Activities.Activity", b =>
@@ -342,18 +293,13 @@ namespace JMLS.RestAPI.Migrations
 
             modelBuilder.Entity("JMLS.Domain.Customers.Customer", b =>
                 {
-                    b.Navigation("Point");
+                    b.Navigation("PointsEarned");
+
+                    b.Navigation("PointsSpent");
                 });
 
             modelBuilder.Entity("JMLS.Domain.Offers.Offer", b =>
                 {
-                    b.Navigation("PointsSpent");
-                });
-
-            modelBuilder.Entity("JMLS.Domain.Points.Point", b =>
-                {
-                    b.Navigation("PointsEarned");
-
                     b.Navigation("PointsSpent");
                 });
 #pragma warning restore 612, 618

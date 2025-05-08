@@ -100,7 +100,6 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddDbContext<JmlsDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
-        builder.Services.AddScoped<IPointService, PointService>();
         builder.Services.AddScoped<ICustomerService, CustomerService>();
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

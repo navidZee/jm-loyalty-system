@@ -24,6 +24,18 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.HasIndex(p => p.Username)
             .IsUnique();
         
+        builder.HasMany(p => p.PointsEarned)
+            .WithOne(e => e.Customer)
+            .HasForeignKey(p => p.CustomerId)
+            .IsRequired()
+            .HasConstraintName("FK_PointsEarned_Customer");
+
+        builder.HasMany(p => p.PointsSpent)
+            .WithOne(e => e.Customer)
+            .HasForeignKey(p => p.CustomerId)
+            .IsRequired()
+            .HasConstraintName("FK_PointsSpent_Customer");
+        
         builder.Property(p => p.DateCreated)
             .HasColumnName("CreatedDateTime")
             .IsRequired()

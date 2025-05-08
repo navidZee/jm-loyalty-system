@@ -11,7 +11,7 @@ public static class IdentityExtensions
                throw new UnauthorizedAccessException("Username claim not found");
     }
 
-    public static async Task<int> GetOrCreateUserIdAsync(this ClaimsPrincipal user, ICustomerService customerService)
+    public static async Task<int> GetOrCreateCustomerIdAsync(this ClaimsPrincipal user, ICustomerService customerService)
     {
         var username = user.GetUsername();
         var customer = await customerService.GetByUserNameAsync(username);

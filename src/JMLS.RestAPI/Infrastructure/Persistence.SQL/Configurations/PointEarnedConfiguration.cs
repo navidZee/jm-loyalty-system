@@ -22,9 +22,9 @@ public class PointEarnedConfiguration : IEntityTypeConfiguration<PointEarned>
             .IsRequired()
             .HasConstraintName("FK_PointsEarned_Activity");
 
-        builder.HasOne(e => e.Point)
+        builder.HasOne(e => e.Customer)
             .WithMany(e => e.PointsEarned)
-            .HasForeignKey(e => e.PointId)
+            .HasForeignKey(e => e.CustomerId)
             .IsRequired()
             .HasConstraintName("FK_PointsEarned_Point");
 

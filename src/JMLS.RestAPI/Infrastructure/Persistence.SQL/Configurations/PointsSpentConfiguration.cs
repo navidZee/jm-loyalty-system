@@ -23,9 +23,9 @@ public class PointsSpentConfiguration : IEntityTypeConfiguration<PointSpent>
             .IsRequired();
         
         builder
-            .HasOne(e => e.Point)
+            .HasOne(e => e.Customer)
             .WithMany(e => e.PointsSpent)
-            .HasForeignKey(e => e.PointId)
+            .HasForeignKey(e => e.CustomerId)
             .IsRequired();
         
         builder.Property(p => p.PointValue)

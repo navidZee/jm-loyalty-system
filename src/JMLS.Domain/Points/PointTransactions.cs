@@ -1,9 +1,11 @@
+using JMLS.Domain.Customers;
+
 namespace JMLS.Domain.Points;
 
 public abstract class PointTransaction : EntityBase
 {
     public int Id { get; set; }
-    public int PointId { get; set; }
     public int PointValue { get; protected init; }
-    public Point Point { get; set; } = null!;
+    public int CustomerId { get; private set; }
+    public Customer Customer { get; set; } = null!;
 }
