@@ -37,7 +37,6 @@ public static class CustomersEndpoints
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .ProducesValidationProblem()
             .WithSummary("Apply customers spent")
             .WithDescription("Apply customers spent")
             .ProducesProblem(StatusCodes.Status401Unauthorized);
@@ -46,14 +45,14 @@ public static class CustomersEndpoints
     }
 
     private static async Task<IResult> GetPointsBalance(
-        [FromServices] ICustomerService customerService,
+        [FromKeyedServices("earn")] ICustomerService earnPointService,
         HttpContext context,
         CancellationToken cancellationToken)
     {
         try
         {
-            var customerId = await context.User.GetOrCreateCustomerIdAsync(customerService);
-            var balance = await customerService.GetPointsBalance(customerId, cancellationToken);
+            var customerId = await context.User.GetOrCreateCustomerIdAsync(earnPointService);
+            var balance = await earnPointService.GetPointsBalance(customerId, cancellationToken);
             return Results.Ok(balance);
         }
         catch (Exception e)
@@ -64,14 +63,18 @@ public static class CustomersEndpoints
 
     private static async Task<IResult> RequestToEarn(
         [FromBody] RequestToEarnDto requestToEarnDto,
-        [FromServices] ICustomerService customerService,
+        [FromKeyedServices("earn")] ICustomerService customerService,
         HttpContext context,
         CancellationToken cancellationToken)
     {
         try
         {
-            requestToEarnDto.CustomerId = await context.User.GetOrCreateCustomerIdAsync(customerService);
-            await customerService.RequestToEarn(requestToEarnDto, cancellationToken);
+            var customerId = await context.User.GetOrCreateCustomerIdAsync(customerService);
+            await customerService.RequestToPointTransaction(new RequestToPointTransactionContextDto
+            {
+                CustomerId = customerId,
+                RequestToEarnDto = requestToEarnDto
+            }, cancellationToken);
             return Results.Ok();
         }
         catch (BusinessRuleValidationException ex)
@@ -86,14 +89,18 @@ public static class CustomersEndpoints
     
     private static async Task<IResult> RequestToSpent(
         [FromBody] RequestToSpentDto requestToSpentDto,
-        [FromServices] ICustomerService customerService,
+        [FromKeyedServices("spent")] ICustomerService customerService,
         HttpContext context,
         CancellationToken cancellationToken)
     {
         try
         {
-            requestToSpentDto.CustomerId = await context.User.GetOrCreateCustomerIdAsync(customerService);
-            await customerService.RequestToSpent(requestToSpentDto, cancellationToken);
+            var customerId = await context.User.GetOrCreateCustomerIdAsync(customerService);
+            await customerService.RequestToPointTransaction(new RequestToPointTransactionContextDto
+            {
+                CustomerId = customerId,
+                RequestToSpentDto = requestToSpentDto
+            }, cancellationToken);
             return Results.Ok();
         }
         catch (BusinessRuleValidationException ex)

@@ -2,6 +2,7 @@ using JMLS.Domain.Customers;
 using JMLS.RestAPI.Infrastructure.Persistence.SQL;
 using JMLS.RestAPI.Requests;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 namespace JMLS.RestAPI.Services;
 
@@ -9,13 +10,17 @@ public interface ICustomerService
 {
     Task<Customer?> GetByUserNameAsync(string keycloakId);
     Task<Customer> CreateAsync(string username);
-    public Task RequestToEarn(RequestToEarnDto requestToEarnDto, CancellationToken cancellationToken);
-    public Task RequestToSpent(RequestToSpentDto requestToSpentDto, CancellationToken cancellationToken);
+    public Task RequestToPointTransaction(RequestToPointTransactionContextDto dto,
+        CancellationToken cancellationToken);
     public Task<int> GetPointsBalance(int customerId, CancellationToken cancellationToken);
 }
 
-public class CustomerService(JmlsDbContext jmlsDbContext) : ICustomerService
+public abstract class CustomerService(JmlsDbContext jmlsDbContext, IConnectionMultiplexer connectionMultiplexer)
+    : ICustomerService
 {
+    const string POINT_CUSTOMER_KEY = "points:customers:{0}";
+    const string POINT_BALANCE_KEY = "points:balance:{0}";
+
     public async Task<Customer?> GetByUserNameAsync(string username)
     {
         return await jmlsDbContext.Customers.FirstOrDefaultAsync(c => c.Username == username);
@@ -28,45 +33,77 @@ public class CustomerService(JmlsDbContext jmlsDbContext) : ICustomerService
         await jmlsDbContext.SaveChangesAsync();
         return customer;
     }
-    
-    public async Task RequestToEarn(RequestToEarnDto requestToEarnDto,
+
+    protected abstract Task<Customer> RequestToRequestToPointTransaction(
+        RequestToPointTransactionContextDto requestToPointTransactionContextDto,
+        CancellationToken cancellationToken);
+
+    public async Task RequestToPointTransaction(RequestToPointTransactionContextDto dto,
         CancellationToken cancellationToken)
     {
-        var customer = await jmlsDbContext.Customers
-            .Include(d => d.PointsEarned)
-            .Include(d => d.PointsSpent)
-            .FirstAsync(d => d.Id == requestToEarnDto.CustomerId, cancellationToken);
+        var lockKey = string.Format(POINT_CUSTOMER_KEY, dto.CustomerId);
+        var localValue = "Lock";
 
-        var activity = await jmlsDbContext.Activities.FirstOrDefaultAsync(d => d.Id == requestToEarnDto.ActivityId,
-                cancellationToken);
+        try
+        {
+            var lockIsTaken = await connectionMultiplexer.GetDatabase()
+                .LockTakeAsync(lockKey, "Lock", TimeSpan.FromSeconds(1));
 
-        customer.Earned(activity!, requestToEarnDto.ReferenceId);
-        jmlsDbContext.Customers.Update(customer);
-        await jmlsDbContext.SaveChangesAsync(cancellationToken);
-    }   
-    
-    public async Task RequestToSpent(RequestToSpentDto requestToEarnDto,
-        CancellationToken cancellationToken)
-    {
-        var customer = await jmlsDbContext.Customers
-            .Include(d => d.PointsEarned)
-            .Include(d => d.PointsSpent)
-            .FirstAsync(d => d.Id == requestToEarnDto.CustomerId, cancellationToken);
-        
-        var offer = await jmlsDbContext.Offers.FirstOrDefaultAsync(d => d.Id == requestToEarnDto.OfferId, cancellationToken);
+            if (!lockIsTaken)
+            {
+                throw new ApplicationException("Points already locked");
+            }
 
-        customer.Spent(offer!);
-        jmlsDbContext.Customers.Update(customer);
-        await jmlsDbContext.SaveChangesAsync(cancellationToken);
+            dto.Customer = await jmlsDbContext.Customers
+                .Include(d => d.PointsEarned)
+                .Include(d => d.PointsSpent)
+                .FirstAsync(d => d.Id == dto.CustomerId, cancellationToken);
+
+            var customer = await RequestToRequestToPointTransaction(dto, cancellationToken);
+
+            jmlsDbContext.Customers.Update(customer);
+            await jmlsDbContext.SaveChangesAsync(cancellationToken);
+
+            var balance = customer.PointBalance;
+            await UpdatePointBalanceCache(customer.Id, balance);
+        }
+        finally
+        {
+            await connectionMultiplexer.GetDatabase().LockReleaseAsync(lockKey, localValue);
+        }
     }
 
     public async Task<int> GetPointsBalance(int customerId, CancellationToken cancellationToken)
     {
+        var key = string.Format(POINT_BALANCE_KEY, customerId);
+        var db = connectionMultiplexer.GetDatabase();
+
+        var cachedBalance = await db.StringGetAsync(key);
+        if (cachedBalance.HasValue)
+        {
+            return (int)cachedBalance;
+        }
+
         var customer = await jmlsDbContext.Customers
             .Include(d => d.PointsEarned)
             .Include(d => d.PointsSpent)
             .FirstAsync(d => d.Id == customerId, cancellationToken);
-        
-        return customer.PointBalance;
+
+        var balance = customer.PointBalance;
+        await UpdatePointBalanceCache(customerId, balance);
+
+        return balance;
+    }
+
+    private async Task UpdatePointBalanceCache(int customerId, int balance)
+    {
+        var key = string.Format(POINT_BALANCE_KEY, customerId);
+        var db = connectionMultiplexer.GetDatabase();
+
+        var now = DateTime.Now;
+        var endOfDay = now.Date.AddDays(1).AddSeconds(-1);
+        var expirationTime = endOfDay - now;
+
+        await db.StringSetAsync(key, balance, expirationTime);
     }
 }

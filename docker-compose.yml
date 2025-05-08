@@ -42,6 +42,15 @@ services:
       - start-dev
     volumes:
       - keycloak_data:/opt/keycloak/data
+  redis:
+    image: redis:alpine
+    container_name: jmls_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+    volumes:
+      - redis_data:/data
 
 networks:
   app_network:
@@ -50,3 +59,4 @@ networks:
 volumes:
   jmls_sql_data:
   keycloak_data:
+  redis_data:

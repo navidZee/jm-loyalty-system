@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using StackExchange.Redis;
 
 namespace JMLS.RestAPI.Extensions;
 
@@ -100,7 +101,9 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddDbContext<JmlsDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
-        builder.Services.AddScoped<ICustomerService, CustomerService>();
+        // Register point services with keys
+        builder.Services.AddKeyedScoped<ICustomerService, PointEarnedService>("earn");
+        builder.Services.AddKeyedScoped<ICustomerService, PointSpentService>("spent");
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
@@ -115,6 +118,12 @@ public static class WebApplicationBuilderExtensions
         });
 
         builder.Services.AddAuthorization();
+
+        builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+        {
+            var configuration = ConfigurationOptions.Parse(builder.Configuration["Redis:ConnectionString"]!);
+            return ConnectionMultiplexer.Connect(configuration);
+        });
 
         return builder;
     }
