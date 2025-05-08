@@ -29,20 +29,17 @@ public class PointConfiguration : IEntityTypeConfiguration<Point>
             .WithOne(e => e.Point)
             .HasForeignKey<Point>(e => e.CustomerId)
             .IsRequired()
-            .HasConstraintName("FK_Points_Customer")
-            .OnDelete(DeleteBehavior.NoAction); // Optional: consistent delete behavior
+            .HasConstraintName("FK_Points_Customer");
 
         builder.HasMany(p => p.PointsEarned)
             .WithOne(e => e.Point)
             .HasForeignKey(p => p.PointId)
-            .OnDelete(DeleteBehavior.NoAction)
             .IsRequired()
             .HasConstraintName("FK_PointsEarned_Point");
 
         builder.HasMany(p => p.PointsSpent)
             .WithOne(e => e.Point)
             .HasForeignKey(p => p.PointId)
-            .OnDelete(DeleteBehavior.NoAction)
             .IsRequired()
             .HasConstraintName("FK_PointsSpent_Point");
 

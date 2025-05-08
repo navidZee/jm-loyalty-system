@@ -41,7 +41,6 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
         builder.HasMany(a => a.PointsEarned)
             .WithOne(e => e.Activity)
             .HasForeignKey(e => e.ActivityId)
-            .OnDelete(DeleteBehavior.NoAction)
             .IsRequired()
             .HasConstraintName("FK_PointsEarned_Activity");
         

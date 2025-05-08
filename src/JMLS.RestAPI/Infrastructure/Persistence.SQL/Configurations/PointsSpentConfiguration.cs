@@ -20,7 +20,6 @@ public class PointsSpentConfiguration : IEntityTypeConfiguration<PointSpent>
             .HasOne(x => x.Offer)
             .WithMany(x => x.PointsSpent)
             .HasForeignKey(x => x.OfferId)
-            .OnDelete(DeleteBehavior.NoAction)
             .IsRequired();
         
         builder
