@@ -13,7 +13,7 @@ public class PointConfiguration : IEntityTypeConfiguration<Point>
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.Id)
-            .ValueGeneratedNever()
+            .ValueGeneratedOnAdd()
             .HasComment("Unique identifier for the points record");
 
         builder.Property(p => p.CustomerId)

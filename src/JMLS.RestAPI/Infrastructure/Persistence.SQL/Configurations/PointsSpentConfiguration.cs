@@ -13,7 +13,7 @@ public class PointsSpentConfiguration : IEntityTypeConfiguration<PointSpent>
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.Id)
-            .ValueGeneratedNever()
+            .ValueGeneratedOnAdd()
             .HasComment("Unique identifier for the point account");
 
         builder

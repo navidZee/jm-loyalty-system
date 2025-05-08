@@ -1,7 +1,7 @@
 using JMLS.RestAPI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args)
-    .ConfigureApplicationBuilder();;
+    .ConfigureApplicationBuilder();
 
 var app = builder.Build().ConfigureApplication();
 

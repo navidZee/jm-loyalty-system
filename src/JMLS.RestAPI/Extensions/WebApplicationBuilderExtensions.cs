@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using JMLS.RestAPI.Infrastructure.Persistence.SQL;
+using JMLS.RestAPI.Services;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -62,6 +62,8 @@ public static class WebApplicationBuilderExtensions
         
         builder.Services.AddDbContext<JmlsDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+        builder.Services.AddScoped<IPointService, PointService>();
         
         return builder;
     }

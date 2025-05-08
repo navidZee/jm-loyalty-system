@@ -8,7 +8,7 @@ public class PointSpent : PointTransaction
     {
     }
 
-    public PointSpent(Offer offer)
+    internal PointSpent(Offer offer)
     {
         OfferId = offer.Id;
         PointValue = offer.PointsCost;

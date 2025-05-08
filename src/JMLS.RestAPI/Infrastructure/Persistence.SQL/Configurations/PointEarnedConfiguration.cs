@@ -13,7 +13,7 @@ public class PointEarnedConfiguration : IEntityTypeConfiguration<PointEarned>
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.Id)
-            .ValueGeneratedNever()
+            .ValueGeneratedOnAdd()
             .HasComment("Unique identifier for this earned points record");
 
         builder.HasOne(x => x.Activity)
@@ -27,6 +27,10 @@ public class PointEarnedConfiguration : IEntityTypeConfiguration<PointEarned>
             .HasForeignKey(e => e.PointId)
             .IsRequired()
             .HasConstraintName("FK_PointsEarned_Point");
+
+        builder.Property(b => b.ReferenceId)
+            .IsRequired()
+            .HasComment("Identifier of the entity this earn is linked to (e.g., purchasesId, SocialMedia activity , ...)");
 
         builder.Property(p => p.PointValue)
             .IsRequired()

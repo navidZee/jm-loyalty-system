@@ -13,7 +13,7 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.Id)
-            .ValueGeneratedNever()
+            .ValueGeneratedOnAdd()
             .HasComment("Unique identifier for the offer");
 
         builder.Property(p => p.Code)

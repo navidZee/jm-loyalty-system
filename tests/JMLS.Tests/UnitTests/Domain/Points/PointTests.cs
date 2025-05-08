@@ -1,7 +1,4 @@
 using JMLS.Domain;
-using JMLS.Domain.Activities;
-using JMLS.Domain.Points;
-using JMLS.Domain.Offers;
 using JMLS.Tests.UnitTests.Domain.Activities;
 using JMLS.Tests.UnitTests.Domain.Offers;
 
@@ -52,9 +49,11 @@ public class PointTests
             .WithPointsReward(50)
             .WithExpirationPeriod(TimeSpan.FromDays(30))
             .Build();
+        const int referenceId = 1;
+
 
         // Act
-        point.Earned(activity);
+        point.Earned(activity, referenceId);
 
         // Assert
         Assert.Single(point.PointsEarned);
@@ -72,9 +71,10 @@ public class PointTests
             .WithPointsReward(50)
             .WithExpirationPeriod(null)
             .Build();
+        const int referenceId = 1;
 
         // Act
-        point.Earned(activity);
+        point.Earned(activity, referenceId);
 
         // Assert
         Assert.Single(point.PointsEarned);
@@ -87,13 +87,31 @@ public class PointTests
     {
         // Arrange
         var point = _pointBuilder.Build();
+        const int referenceId = 1;
 
         // Act & Assert
         var exception = Assert.Throws<BusinessRuleValidationException>(
-            () => point.Earned(null!)
+            () => point.Earned(null!, referenceId)
         );
 
-        Assert.Equal("Interaction type must be provided", exception.Message);
+        Assert.Equal("Activity type must be provided", exception.Message);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Earned_WhenReferenceIdIsInvalid_ThenThrowsBusinessRuleValidationException(int referenceId)
+    {
+        // Arrange
+        var point = _pointBuilder.Build();
+        var activity = _activityBuilder.Build();
+
+        // Act & Assert
+        var exception = Assert.Throws<BusinessRuleValidationException>(
+            () => point.Earned(activity, referenceId)
+        );
+
+        Assert.Equal("Reference id must be more than zero", exception.Message);
     }
 
     [Fact]
@@ -108,8 +126,9 @@ public class PointTests
             .WithPointsCost(50)
             .WithPointsCost(50)
             .Build();
+        const int referenceId = 1;
 
-        point.Earned(activity);
+        point.Earned(activity, referenceId);
         var initialBalance = point.Balance;
 
         // Act
@@ -126,7 +145,7 @@ public class PointTests
     {
         // Arrange
         var point = _pointBuilder.Build();
-        
+
         // Act & Assert
         var exception = Assert.Throws<BusinessRuleValidationException>(
             () => point.Spent(null!)
@@ -146,8 +165,9 @@ public class PointTests
         var offer = _offerBuilder
             .WithPointsCost(100)
             .Build();
+        const int referenceId = 1;
 
-        point.Earned(activity); // Balance will be 50
+        point.Earned(activity, referenceId); // Balance will be 50
 
         // Act & Assert
         var exception = Assert.Throws<BusinessRuleValidationException>(
@@ -170,10 +190,12 @@ public class PointTests
             .WithPointsReward(100)
             .WithExpirationPeriod(TimeSpan.FromDays(30))
             .Build();
+        const int referenceId1 = 1;
+        const int referenceId2 = 2;
 
         // Act
-        point.Earned(expiredActivity);
-        point.Earned(validActivity);
+        point.Earned(expiredActivity, referenceId1);
+        point.Earned(validActivity, referenceId2);
 
         // Assert
         Assert.Equal(2, point.PointsEarned.Count);
@@ -188,10 +210,12 @@ public class PointTests
         var activity1 = _activityBuilder.WithPointsReward(100).Build();
         var activity2 = _activityBuilder.WithPointsReward(50).Build();
         var offer = _offerBuilder.WithPointsCost(30).Build();
-
+        const int referenceId1 = 1;
+        const int referenceId2 = 2;
+        
         // Act
-        point.Earned(activity1); // +100
-        point.Earned(activity2); // +50
+        point.Earned(activity1, referenceId1); // +100
+        point.Earned(activity2, referenceId2); // +50
         point.Spent(offer); // -30
 
         // Assert

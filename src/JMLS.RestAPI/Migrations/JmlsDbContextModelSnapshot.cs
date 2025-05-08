@@ -88,8 +88,11 @@ namespace JMLS.RestAPI.Migrations
             modelBuilder.Entity("JMLS.Domain.Offers.Offer", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasComment("Unique identifier for the offer");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)")
@@ -139,8 +142,11 @@ namespace JMLS.RestAPI.Migrations
             modelBuilder.Entity("JMLS.Domain.Points.Point", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasComment("Unique identifier for the points record");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Balance")
                         .ValueGeneratedOnAdd()
@@ -173,8 +179,11 @@ namespace JMLS.RestAPI.Migrations
             modelBuilder.Entity("JMLS.Domain.Points.PointEarned", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasComment("Unique identifier for this earned points record");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ActivityId")
                         .HasColumnType("int");
@@ -201,6 +210,10 @@ namespace JMLS.RestAPI.Migrations
                         .HasColumnName("PointsReward")
                         .HasComment("Number of points earned from the associated activity");
 
+                    b.Property<int>("ReferenceId")
+                        .HasColumnType("int")
+                        .HasComment("Identifier of the entity this earn is linked to (e.g., purchasesId, SocialMedia activity , ...)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ActivityId");
@@ -213,8 +226,11 @@ namespace JMLS.RestAPI.Migrations
             modelBuilder.Entity("JMLS.Domain.Points.PointSpent", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasComment("Unique identifier for the point account");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2")

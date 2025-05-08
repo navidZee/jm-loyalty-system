@@ -9,5 +9,5 @@ public class ActivityMustBeProvidedRule(Activity activity) : IBusinessRule
         return activity == null!;
     }
 
-    public string Message => "Interaction type must be provided";
+    public string Message => "Activity type must be provided";
 }

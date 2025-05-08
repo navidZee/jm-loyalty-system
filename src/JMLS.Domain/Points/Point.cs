@@ -17,14 +17,14 @@ public class Point : EntityBase
 
         CustomerId = customerId;
         Balance = 0;
-        DateModified = DateTime.Now;
+        DateCreated = DateTime.Now;
         DateModified = DateTime.Now;
     }
 
-    public int Id { get; set; }
+    public int Id { get;  set; }
     public int CustomerId { get; private set; }
     public int Balance { get; private set; }
-    public required Customer Customer { get; set; }
+    public Customer Customer { get; set; } = null!;
 
     private readonly List<PointEarned> _pointsEarned = [];
     public IReadOnlyList<PointEarned> PointsEarned => _pointsEarned;
@@ -38,9 +38,11 @@ public class Point : EntityBase
         DateModified = DateTime.Now;
     }
 
-    public void Earned(Activity activity)
+    public void Earned(Activity activity, int referenceId)
     {
-        _pointsEarned.Add(new PointEarned(activity));
+        CheckRules(new ActivityMustBeProvidedRule(activity), new ReferenceIdMustBeMoreThanZero(referenceId));
+
+        _pointsEarned.Add(new PointEarned(activity, referenceId));
         SetBalance();
     }
 
