@@ -1,6 +1,6 @@
-﻿namespace JMLS.Domain.Rewards.Rules;
+namespace JMLS.Domain.Offers.Rules;
 
-public class RewardAmountMustBeMoreThanZeroRule(decimal amount) : IBusinessRule
+public class OfferAmountMustBeMoreThanZeroRule(decimal amount) : IBusinessRule
 {
     public bool IsBroken()
     {

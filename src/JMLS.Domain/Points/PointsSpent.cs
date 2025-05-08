@@ -1,4 +1,4 @@
-using JMLS.Domain.Rewards;
+using JMLS.Domain.Offers;
 
 namespace JMLS.Domain.Points;
 
@@ -8,15 +8,14 @@ public class PointSpent : PointTransaction
     {
     }
 
-    public PointSpent(Reward reward)
+    public PointSpent(Offer offer)
     {
-        
-        RewardId = reward.Id;
-        Amount = reward.Amount;
+        OfferId = offer.Id;
+        PointsValue = offer.PointSpent;
         DateCreated = DateTime.Now;
         DateModified = DateTime.Now;
     }
 
-    public int RewardId { get; set; }
-    public Reward Reward { get; set; } = null!;
+    public int OfferId { get; set; }
+    public Offer Offer { get; set; } = null!;
 }

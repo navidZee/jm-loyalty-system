@@ -1,5 +1,5 @@
 // title
-title Customer Points and Rewards Domain Model
+title Customer Points and Offers Domain Model
 
 // define tables
 customers [icon: user, color: yellow]{
@@ -8,7 +8,7 @@ customers [icon: user, color: yellow]{
 
 interaction_types [icon: activity, color: orange]{
   id string pk
-  key string
+  title string
   description string
   amount int
   expiration_period_days int // nullable, days until points expire
@@ -37,10 +37,10 @@ point_earned [icon: arrow-up, color: green]{
 point_spent [icon: arrow-down, color: red]{
   id string pk
   point_transaction_id string
-  reward_id string
+  offer_id string
 }
 
-rewards [icon: gift, color: purple]{
+offers [icon: gift, color: purple]{
   id string pk
   reference_id string
   reference_type string
@@ -53,4 +53,4 @@ point_transactions.point_id > points.id
 point_earned.point_transaction_id - point_transactions.id
 point_earned.interaction_type_id > interaction_types.id
 point_spent.point_transaction_id - point_transactions.id
-point_spent.reward_id > rewards.id
+point_spent.offer_id > offers.id

@@ -17,8 +17,6 @@ public class PointTestDataBuilder
     {
         var point = new Point(_customerId)
         {
-            PointsEarned = new List<PointEarned>(),
-            PointsSpent = new List<PointSpent>(),
             Customer = new Customer() { Id = _customerId }
         };
         return point;

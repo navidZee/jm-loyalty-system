@@ -5,7 +5,7 @@ public abstract class EntityBase
     public DateTime DateCreated { get; set; }
     public DateTime DateModified { get; set; }
 
-    protected void CheckRules(params IBusinessRule[] rules)
+    protected static void CheckRules(params IBusinessRule[] rules)
     {
         foreach (var rule in rules)
         {

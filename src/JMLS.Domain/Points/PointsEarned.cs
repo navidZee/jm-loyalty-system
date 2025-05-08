@@ -1,4 +1,5 @@
-using JMLS.Domain.InteractionTypes;
+using JMLS.Domain.Activities;
+using JMLS.Domain.Points.Rules;
 
 namespace JMLS.Domain.Points;
 
@@ -8,14 +9,16 @@ public class PointEarned : PointTransaction
     {
     }
 
-    public PointEarned(InteractionType interactionType)
+    public PointEarned(Activity activity)
     {
-        InteractionTypeId = interactionType.Id;
-        if (interactionType.ExpirationPeriod.HasValue)
+        CheckRules(new ActivityMustBeProvidedRule(activity));
+        
+        InteractionTypeId = activity.Id;
+        if (activity.ExpirationPeriod.HasValue)
         {
-            ExpirationDate = DateTime.Now.Add(interactionType.ExpirationPeriod.Value);
+            ExpirationDate = DateTime.Now.Add(activity.ExpirationPeriod.Value);
         }
-        Amount = interactionType.Amount;
+        PointsValue = activity.PointsEarned;
         DateCreated = DateTime.Now;
         DateModified = DateTime.Now;
     }
@@ -23,6 +26,6 @@ public class PointEarned : PointTransaction
     public int InteractionTypeId { get; private set; }
     public DateTime? ExpirationDate { get; private set; }
     
-    public InteractionType InteractionType { get; set; } = null!;
+    public Activity Activity { get; set; } = null!;
     public bool IsActive => ExpirationDate is null || ExpirationDate.Value.Date >= DateTime.Now.Date; 
 }

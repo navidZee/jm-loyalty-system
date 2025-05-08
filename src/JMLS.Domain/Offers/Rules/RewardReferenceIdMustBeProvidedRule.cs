@@ -1,6 +1,6 @@
-﻿namespace JMLS.Domain.Rewards.Rules;
+﻿namespace JMLS.Domain.Offers.Rules;
 
-public class RewardReferenceIdMustBeProvidedRule(int referenceId) : IBusinessRule
+public class OfferReferenceIdMustBeProvidedRule(int referenceId) : IBusinessRule
 {
     public bool IsBroken()
     {

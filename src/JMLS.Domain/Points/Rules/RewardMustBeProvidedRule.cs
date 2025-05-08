@@ -1,13 +1,23 @@
-using JMLS.Domain.Rewards;
+using JMLS.Domain.Offers;
 
 namespace JMLS.Domain.Points.Rules;
 
-public class RewardMustBeProvidedRule(Reward reward) : IBusinessRule
+public class OfferMustBeProvidedRule(Offer offer) : IBusinessRule
 {
     public bool IsBroken()
     {
-        return reward == null!;
+        return offer == null!;
     }
 
-    public string Message => "Reward must be provided";
+    public string Message => "Offer must be provided";
+}
+
+public class BalanceMustBeGreaterThanPointSpentCostRule(int balance, Offer offer) : IBusinessRule
+{
+    public bool IsBroken()
+    {
+        return balance < offer.PointSpent;
+    }
+
+    public string Message => "Insufficient point balance for this offer";
 }

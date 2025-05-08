@@ -1,7 +1,7 @@
 using JMLS.Domain.Customers;
-using JMLS.Domain.InteractionTypes;
+using JMLS.Domain.Activities;
+using JMLS.Domain.Offers;
 using JMLS.Domain.Points.Rules;
-using JMLS.Domain.Rewards;
 
 namespace JMLS.Domain.Points;
 
@@ -22,31 +22,33 @@ public class Point : EntityBase
 
     public int Id { get; set; }
     public int CustomerId { get; private set; }
-    public decimal Balance { get; private set; }
-    
+    public int Balance { get; private set; }
     public required Customer Customer { get; set; }
-    public required List<PointEarned> PointsEarned { get; set; }
-    public required List<PointSpent> PointsSpent { get; set; }
+
+    private readonly List<PointEarned> _pointsEarned = [];
+    public IReadOnlyList<PointEarned> PointsEarned => _pointsEarned;
+
+    private readonly List<PointSpent> _pointsSpent = [];
+    public IReadOnlyList<PointSpent> PointsSpent => _pointsSpent;
 
     private void SetBalance()
     {
-        Balance = PointsEarned.Where(pe => pe.IsActive).Sum(x => x.Amount) - PointsSpent.Sum(x => x.Amount);
+        Balance = PointsEarned.Where(pe => pe.IsActive).Sum(x => x.PointsValue) - PointsSpent.Sum(x => x.PointsValue);
         DateModified = DateTime.Now;
     }
 
-    public void Earned(InteractionType interactionType)
+    public void Earned(Activity activity)
     {
-        CheckRules(new InteractionTypeMustBeProvidedRule(interactionType));
-
-        PointsEarned.Add(new PointEarned(interactionType));
+        _pointsEarned.Add(new PointEarned(activity));
         SetBalance();
     }
 
-    public void Spent(Reward reward)
+    public void Spent(Offer offer)
     {
-        CheckRules(new RewardMustBeProvidedRule(reward));
+        CheckRules(new OfferMustBeProvidedRule(offer),
+            new BalanceMustBeGreaterThanPointSpentCostRule(Balance, offer));
 
-        PointsSpent.Add(new PointSpent(reward));
+        _pointsSpent.Add(new PointSpent(offer));
         SetBalance();
     }
 }

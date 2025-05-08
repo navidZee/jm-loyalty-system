@@ -1,17 +1,17 @@
 using JMLS.Domain;
-using JMLS.Domain.InteractionTypes;
+using JMLS.Domain.Activities;
 using JMLS.Domain.Points;
-using JMLS.Domain.Rewards;
+using JMLS.Domain.Offers;
 using JMLS.Tests.UnitTests.Domain.InteractionTypes;
-using JMLS.Tests.UnitTests.Domain.Rewards;
+using JMLS.Tests.UnitTests.Domain.Offers;
 
 namespace JMLS.Tests.UnitTests.Domain.Points;
 
 public class PointTests
 {
     private readonly PointTestDataBuilder _pointBuilder = new();
-    private readonly InteractionTypeTestDataBuilder _interactionTypeBuilder = new();
-    private readonly RewardTestDataBuilder _rewardBuilder = new();
+    private readonly InteractionTypeTestDataBuilder _activityBuilder = new();
+    private readonly OfferTestDataBuilder _offerBuilder = new();
 
     [Fact]
     public void Constructor_WhenValidCustomerId_ThenPointIsCreated()
@@ -48,18 +48,18 @@ public class PointTests
     {
         // Arrange
         var point = _pointBuilder.Build();
-        var interactionType = _interactionTypeBuilder
-            .WithAmount(50.0m)
+        var activity = _activityBuilder
+            .WithPointsEarned(50)
             .WithExpirationPeriod(TimeSpan.FromDays(30))
             .Build();
 
         // Act
-        point.Earned(interactionType);
+        point.Earned(activity);
 
         // Assert
         Assert.Single(point.PointsEarned);
         Assert.Equal(50.0m, point.Balance);
-        Assert.Equal(interactionType.Id, point.PointsEarned[0].InteractionTypeId);
+        Assert.Equal(activity.Id, point.PointsEarned[0].InteractionTypeId);
         Assert.NotNull(point.PointsEarned[0].ExpirationDate);
     }
 
@@ -68,13 +68,13 @@ public class PointTests
     {
         // Arrange
         var point = _pointBuilder.Build();
-        var interactionType = _interactionTypeBuilder
-            .WithAmount(50.0m)
+        var activity = _activityBuilder
+            .WithPointsEarned(50)
             .WithExpirationPeriod(null)
             .Build();
 
         // Act
-        point.Earned(interactionType);
+        point.Earned(activity);
 
         // Assert
         Assert.Single(point.PointsEarned);
@@ -97,41 +97,64 @@ public class PointTests
     }
 
     [Fact]
-    public void Spent_WhenValidReward_ThenPointsAreDeducted()
+    public void Spent_WhenValidOffer_ThenPointsAreDeducted()
     {
         // Arrange
         var point = _pointBuilder.Build();
-        var interactionType = _interactionTypeBuilder
-            .WithAmount(100.0m)
+        var activity = _activityBuilder
+            .WithPointsEarned(100)
             .Build();
-        var reward = _rewardBuilder
-            .WithAmount(50.0m)
+        var offer = _offerBuilder
+            .WithPointSpent(50)
+            .WithPointSpent(50)
             .Build();
 
-        point.Earned(interactionType);
+        point.Earned(activity);
         var initialBalance = point.Balance;
 
         // Act
-        point.Spent(reward);
+        point.Spent(offer);
 
         // Assert
         Assert.Single(point.PointsSpent);
-        Assert.Equal(initialBalance - reward.Amount, point.Balance);
-        Assert.Equal(reward.Id, point.PointsSpent[0].RewardId);
+        Assert.Equal(initialBalance - offer.PointSpent, point.Balance);
+        Assert.Equal(offer.Id, point.PointsSpent[0].OfferId);
     }
 
     [Fact]
-    public void Spent_WhenRewardIsInvalid_ThenThrowsBusinessRuleValidationException()
+    public void Spent_WhenOfferIsInvalid_ThenThrowsBusinessRuleValidationException()
     {
         // Arrange
         var point = _pointBuilder.Build();
-
+        
         // Act & Assert
         var exception = Assert.Throws<BusinessRuleValidationException>(
             () => point.Spent(null!)
         );
 
-        Assert.Equal("Reward must be provided", exception.Message);
+        Assert.Equal("Offer must be provided", exception.Message);
+    }
+
+    [Fact]
+    public void Spent_WhenInsufficientBalance_ThenThrowsBusinessRuleValidationException()
+    {
+        // Arrange
+        var point = _pointBuilder.Build();
+        var activity = _activityBuilder
+            .WithPointsEarned(50)
+            .Build();
+        var offer = _offerBuilder
+            .WithPointSpent(100)
+            .Build();
+
+        point.Earned(activity); // Balance will be 50
+
+        // Act & Assert
+        var exception = Assert.Throws<BusinessRuleValidationException>(
+            () => point.Spent(offer)
+        );
+
+        Assert.Equal("Insufficient point balance for this offer", exception.Message);
     }
 
     [Fact]
@@ -139,12 +162,12 @@ public class PointTests
     {
         // Arrange
         var point = _pointBuilder.Build();
-        var expiredInteractionType = _interactionTypeBuilder
-            .WithAmount(50.0m)
+        var expiredInteractionType = _activityBuilder
+            .WithPointsEarned(50)
             .WithExpirationPeriod(TimeSpan.FromDays(-1))
             .Build();
-        var validInteractionType = _interactionTypeBuilder
-            .WithAmount(100.0m)
+        var validInteractionType = _activityBuilder
+            .WithPointsEarned(100)
             .WithExpirationPeriod(TimeSpan.FromDays(30))
             .Build();
 
@@ -154,6 +177,26 @@ public class PointTests
 
         // Assert
         Assert.Equal(2, point.PointsEarned.Count);
-        Assert.Equal(100.0m, point.Balance); // Only non-expired points should be counted
+        Assert.Equal(100, point.Balance); // Only non-expired points should be counted
+    }
+
+    [Fact]
+    public void Balance_WhenMultipleTransactions_ThenBalanceIsCalculatedCorrectly()
+    {
+        // Arrange
+        var point = _pointBuilder.Build();
+        var activity1 = _activityBuilder.WithPointsEarned(100).Build();
+        var activity2 = _activityBuilder.WithPointsEarned(50).Build();
+        var offer = _offerBuilder.WithPointSpent(30).Build();
+
+        // Act
+        point.Earned(activity1); // +100
+        point.Earned(activity2); // +50
+        point.Spent(offer); // -30
+
+        // Assert
+        Assert.Equal(activity1.PointsEarned + activity2.PointsEarned - offer.PointSpent, point.Balance);
+        Assert.Equal(2, point.PointsEarned.Count);
+        Assert.Single(point.PointsSpent);
     }
 }

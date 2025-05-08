@@ -1,9 +1,9 @@
 using JMLS.Domain;
-using JMLS.Domain.InteractionTypes;
+using JMLS.Domain.Activities;
 
 namespace JMLS.Tests.UnitTests.Domain.InteractionTypes;
 
-public class InteractionTypeTests
+public class ActivityTests
 {
     private readonly InteractionTypeTestDataBuilder _builder = new();
 
@@ -11,38 +11,41 @@ public class InteractionTypeTests
     public void Constructor_WhenValidParametersProvided_ThenInteractionTypeIsCreated()
     {
         // Arrange
-        const string key = "VALID_KEY";
+        const string title = "Valid Title";
         const string description = "Valid Description";
-        const decimal amount = 50.0m;
+        const ActivityType activityType = ActivityType.SocialMedia;
+        const int pointsEarned = 50;
         var expirationPeriod = TimeSpan.FromDays(30);
 
         // Act
-        var interactionType = _builder
-            .WithKey(key)
+        var activity = _builder
+            .WithTitle(title)
+            .WithActivityType(activityType)
             .WithDescription(description)
-            .WithAmount(amount)
+            .WithPointsEarned(pointsEarned)
             .WithExpirationPeriod(expirationPeriod)
             .Build();
 
         // Assert
-        Assert.NotNull(interactionType);
-        Assert.Equal(key, interactionType.Key);
-        Assert.Equal(description, interactionType.Description);
-        Assert.Equal(amount, interactionType.Amount);
-        Assert.Equal(expirationPeriod, interactionType.ExpirationPeriod);
+        Assert.NotNull(activity);
+        Assert.Equal(title, activity.Title);
+        Assert.Equal(activityType, activity.ActivityType);
+        Assert.Equal(description, activity.Description);
+        Assert.Equal(pointsEarned, activity.PointsEarned);
+        Assert.Equal(expirationPeriod, activity.ExpirationPeriod);
     }
 
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void Constructor_WhenKeyIsInvalid_ThenThrowsBusinessRuleValidationException(string key)
+    public void Constructor_WhenKeyIsInvalid_ThenThrowsBusinessRuleValidationException(string title)
     {
         // Act & Assert
         var exception = Assert.Throws<BusinessRuleValidationException>(
-            () => _builder.WithKey(key).Build()
+            () => _builder.WithTitle(title).Build()
         );
         
-        Assert.Equal("Key must be provided.", exception.Message);
+        Assert.Equal("Title must be provided.", exception.Message);
     }
 
     [Fact]
@@ -50,10 +53,10 @@ public class InteractionTypeTests
     {
         // Act & Assert
         var exception = Assert.Throws<BusinessRuleValidationException>(
-            () => _builder.WithKey(null!).Build()
+            () => _builder.WithTitle(null!).Build()
         );
         
-        Assert.Equal("Key must be provided.", exception.Message);
+        Assert.Equal("Title must be provided.", exception.Message);
     }
 
     [Theory]
@@ -84,23 +87,23 @@ public class InteractionTypeTests
     [InlineData(0)]
     [InlineData(-1)]
     [InlineData(-100)]
-    public void Constructor_WhenAmountIsNotPositive_ThenThrowsBusinessRuleValidationException(decimal amount)
+    public void Constructor_WhenPointsEarnedIsNotPositive_ThenThrowsBusinessRuleValidationException(int pointsEarned)
     {
         // Act & Assert
         var exception = Assert.Throws<BusinessRuleValidationException>(
-            () => _builder.WithAmount(amount).Build()
+            () => _builder.WithPointsEarned(pointsEarned).Build()
         );
         
-        Assert.Equal("The amount must be more than zero.", exception.Message);
+        Assert.Equal("The points earned must be more than zero.", exception.Message);
     }
 
     [Fact]
     public void Constructor_WhenExpirationPeriodIsNull_ThenInteractionTypeIsCreatedWithoutExpiration()
     {
         // Act
-        var interactionType = _builder.WithExpirationPeriod(null).Build();
+        var activity = _builder.WithExpirationPeriod(null).Build();
 
         // Assert
-        Assert.Null(interactionType.ExpirationPeriod);
+        Assert.Null(activity.ExpirationPeriod);
     }
 }

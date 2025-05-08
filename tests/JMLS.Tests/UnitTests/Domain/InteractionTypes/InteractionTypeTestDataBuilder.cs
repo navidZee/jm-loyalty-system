@@ -1,17 +1,24 @@
-using JMLS.Domain.InteractionTypes;
+using JMLS.Domain.Activities;
 
 namespace JMLS.Tests.UnitTests.Domain.InteractionTypes;
 
 public class InteractionTypeTestDataBuilder
 {
-    private string _key = "TEST_KEY";
+    private string _title = "Test Title";
+    private ActivityType _activityType = ActivityType.Purchases;
     private string _description = "Test Description";
-    private decimal _amount = 100.0m;
+    private int _pointsEarned = 100;
     private TimeSpan? _expirationPeriod = TimeSpan.FromDays(30);
 
-    public InteractionTypeTestDataBuilder WithKey(string key)
+    public InteractionTypeTestDataBuilder WithTitle(string title)
     {
-        _key = key;
+        _title = title;
+        return this;
+    }
+
+    public InteractionTypeTestDataBuilder WithActivityType(ActivityType activityType)
+    {
+        _activityType = activityType;
         return this;
     }
 
@@ -21,9 +28,9 @@ public class InteractionTypeTestDataBuilder
         return this;
     }
 
-    public InteractionTypeTestDataBuilder WithAmount(decimal amount)
+    public InteractionTypeTestDataBuilder WithPointsEarned(int pointsEarned)
     {
-        _amount = amount;
+        _pointsEarned = pointsEarned;
         return this;
     }
 
@@ -33,12 +40,8 @@ public class InteractionTypeTestDataBuilder
         return this;
     }
 
-    public InteractionType Build()
+    public Activity Build()
     {
-        return new InteractionType(_key, _description, _amount, _expirationPeriod)
-        {
-            Key = _key,
-            Description = _description
-        };
+        return new Activity(_title, _activityType, _pointsEarned, _description, _expirationPeriod);
     }
 }
