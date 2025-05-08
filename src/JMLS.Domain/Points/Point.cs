@@ -1,5 +1,5 @@
-using JMLS.Domain.Customers;
 using JMLS.Domain.Activities;
+using JMLS.Domain.Customers;
 using JMLS.Domain.Offers;
 using JMLS.Domain.Points.Rules;
 
@@ -16,6 +16,7 @@ public class Point : EntityBase
         CheckRules(new CustomerIdMustBeMoreThanZeroRule(customerId));
 
         CustomerId = customerId;
+        Balance = 0;
         DateModified = DateTime.Now;
         DateModified = DateTime.Now;
     }
@@ -33,7 +34,7 @@ public class Point : EntityBase
 
     private void SetBalance()
     {
-        Balance = PointsEarned.Where(pe => pe.IsActive).Sum(x => x.PointsValue) - PointsSpent.Sum(x => x.PointsValue);
+        Balance = PointsEarned.Where(pe => pe.IsActive).Sum(x => x.PointValue) - PointsSpent.Sum(x => x.PointValue);
         DateModified = DateTime.Now;
     }
 

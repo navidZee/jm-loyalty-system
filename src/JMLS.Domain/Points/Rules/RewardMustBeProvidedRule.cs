@@ -16,7 +16,7 @@ public class BalanceMustBeGreaterThanPointSpentCostRule(int balance, Offer offer
 {
     public bool IsBroken()
     {
-        return balance < offer.PointSpent;
+        return balance < offer.PointsCost;
     }
 
     public string Message => "Insufficient point balance for this offer";

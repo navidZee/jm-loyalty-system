@@ -2,8 +2,8 @@
 
 public abstract class EntityBase
 {
-    public DateTime DateCreated { get; set; }
-    public DateTime DateModified { get; set; }
+    public DateTime DateCreated { get; protected set; }
+    public DateTime DateModified { get; protected set; }
 
     protected static void CheckRules(params IBusinessRule[] rules)
     {

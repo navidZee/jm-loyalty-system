@@ -11,7 +11,7 @@ public class PointSpent : PointTransaction
     public PointSpent(Offer offer)
     {
         OfferId = offer.Id;
-        PointsValue = offer.PointSpent;
+        PointValue = offer.PointsCost;
         DateCreated = DateTime.Now;
         DateModified = DateTime.Now;
     }

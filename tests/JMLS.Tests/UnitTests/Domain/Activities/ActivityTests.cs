@@ -1,14 +1,14 @@
 using JMLS.Domain;
 using JMLS.Domain.Activities;
 
-namespace JMLS.Tests.UnitTests.Domain.InteractionTypes;
+namespace JMLS.Tests.UnitTests.Domain.Activities;
 
 public class ActivityTests
 {
-    private readonly InteractionTypeTestDataBuilder _builder = new();
+    private readonly ActivityTestDataBuilder _builder = new();
 
     [Fact]
-    public void Constructor_WhenValidParametersProvided_ThenInteractionTypeIsCreated()
+    public void Constructor_WhenValidParametersProvided_ThenActivityIsCreated()
     {
         // Arrange
         const string title = "Valid Title";
@@ -22,7 +22,7 @@ public class ActivityTests
             .WithTitle(title)
             .WithActivityType(activityType)
             .WithDescription(description)
-            .WithPointsEarned(pointsEarned)
+            .WithPointsReward(pointsEarned)
             .WithExpirationPeriod(expirationPeriod)
             .Build();
 
@@ -31,7 +31,7 @@ public class ActivityTests
         Assert.Equal(title, activity.Title);
         Assert.Equal(activityType, activity.ActivityType);
         Assert.Equal(description, activity.Description);
-        Assert.Equal(pointsEarned, activity.PointsEarned);
+        Assert.Equal(pointsEarned, activity.PointsReward);
         Assert.Equal(expirationPeriod, activity.ExpirationPeriod);
     }
 
@@ -91,14 +91,14 @@ public class ActivityTests
     {
         // Act & Assert
         var exception = Assert.Throws<BusinessRuleValidationException>(
-            () => _builder.WithPointsEarned(pointsEarned).Build()
+            () => _builder.WithPointsReward(pointsEarned).Build()
         );
         
-        Assert.Equal("The points earned must be more than zero.", exception.Message);
+        Assert.Equal("The points reward must be more than zero.", exception.Message);
     }
 
     [Fact]
-    public void Constructor_WhenExpirationPeriodIsNull_ThenInteractionTypeIsCreatedWithoutExpiration()
+    public void Constructor_WhenExpirationPeriodIsNull_ThenActivityIsCreatedWithoutExpiration()
     {
         // Act
         var activity = _builder.WithExpirationPeriod(null).Build();

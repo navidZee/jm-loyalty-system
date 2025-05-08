@@ -2,7 +2,7 @@ using JMLS.Domain;
 using JMLS.Domain.Activities;
 using JMLS.Domain.Points;
 using JMLS.Domain.Offers;
-using JMLS.Tests.UnitTests.Domain.InteractionTypes;
+using JMLS.Tests.UnitTests.Domain.Activities;
 using JMLS.Tests.UnitTests.Domain.Offers;
 
 namespace JMLS.Tests.UnitTests.Domain.Points;
@@ -10,7 +10,7 @@ namespace JMLS.Tests.UnitTests.Domain.Points;
 public class PointTests
 {
     private readonly PointTestDataBuilder _pointBuilder = new();
-    private readonly InteractionTypeTestDataBuilder _activityBuilder = new();
+    private readonly ActivityTestDataBuilder _activityBuilder = new();
     private readonly OfferTestDataBuilder _offerBuilder = new();
 
     [Fact]
@@ -44,12 +44,12 @@ public class PointTests
     }
 
     [Fact]
-    public void Earned_WhenValidInteractionType_ThenPointsAreAdded()
+    public void Earned_WhenValidActivity_ThenPointsAreAdded()
     {
         // Arrange
         var point = _pointBuilder.Build();
         var activity = _activityBuilder
-            .WithPointsEarned(50)
+            .WithPointsReward(50)
             .WithExpirationPeriod(TimeSpan.FromDays(30))
             .Build();
 
@@ -59,17 +59,17 @@ public class PointTests
         // Assert
         Assert.Single(point.PointsEarned);
         Assert.Equal(50.0m, point.Balance);
-        Assert.Equal(activity.Id, point.PointsEarned[0].InteractionTypeId);
+        Assert.Equal(activity.Id, point.PointsEarned[0].ActivityId);
         Assert.NotNull(point.PointsEarned[0].ExpirationDate);
     }
 
     [Fact]
-    public void Earned_WhenInteractionTypeWithoutExpiration_ThenPointsAddedWithoutExpiration()
+    public void Earned_WhenActivityWithoutExpiration_ThenPointsAddedWithoutExpiration()
     {
         // Arrange
         var point = _pointBuilder.Build();
         var activity = _activityBuilder
-            .WithPointsEarned(50)
+            .WithPointsReward(50)
             .WithExpirationPeriod(null)
             .Build();
 
@@ -83,7 +83,7 @@ public class PointTests
     }
 
     [Fact]
-    public void Earned_WhenInteractionTypeIsInvalid_ThenThrowsBusinessRuleValidationException()
+    public void Earned_WhenActivityIsInvalid_ThenThrowsBusinessRuleValidationException()
     {
         // Arrange
         var point = _pointBuilder.Build();
@@ -102,11 +102,11 @@ public class PointTests
         // Arrange
         var point = _pointBuilder.Build();
         var activity = _activityBuilder
-            .WithPointsEarned(100)
+            .WithPointsReward(100)
             .Build();
         var offer = _offerBuilder
-            .WithPointSpent(50)
-            .WithPointSpent(50)
+            .WithPointsCost(50)
+            .WithPointsCost(50)
             .Build();
 
         point.Earned(activity);
@@ -117,7 +117,7 @@ public class PointTests
 
         // Assert
         Assert.Single(point.PointsSpent);
-        Assert.Equal(initialBalance - offer.PointSpent, point.Balance);
+        Assert.Equal(initialBalance - offer.PointsCost, point.Balance);
         Assert.Equal(offer.Id, point.PointsSpent[0].OfferId);
     }
 
@@ -141,10 +141,10 @@ public class PointTests
         // Arrange
         var point = _pointBuilder.Build();
         var activity = _activityBuilder
-            .WithPointsEarned(50)
+            .WithPointsReward(50)
             .Build();
         var offer = _offerBuilder
-            .WithPointSpent(100)
+            .WithPointsCost(100)
             .Build();
 
         point.Earned(activity); // Balance will be 50
@@ -162,18 +162,18 @@ public class PointTests
     {
         // Arrange
         var point = _pointBuilder.Build();
-        var expiredInteractionType = _activityBuilder
-            .WithPointsEarned(50)
+        var expiredActivity = _activityBuilder
+            .WithPointsReward(50)
             .WithExpirationPeriod(TimeSpan.FromDays(-1))
             .Build();
-        var validInteractionType = _activityBuilder
-            .WithPointsEarned(100)
+        var validActivity = _activityBuilder
+            .WithPointsReward(100)
             .WithExpirationPeriod(TimeSpan.FromDays(30))
             .Build();
 
         // Act
-        point.Earned(expiredInteractionType);
-        point.Earned(validInteractionType);
+        point.Earned(expiredActivity);
+        point.Earned(validActivity);
 
         // Assert
         Assert.Equal(2, point.PointsEarned.Count);
@@ -185,9 +185,9 @@ public class PointTests
     {
         // Arrange
         var point = _pointBuilder.Build();
-        var activity1 = _activityBuilder.WithPointsEarned(100).Build();
-        var activity2 = _activityBuilder.WithPointsEarned(50).Build();
-        var offer = _offerBuilder.WithPointSpent(30).Build();
+        var activity1 = _activityBuilder.WithPointsReward(100).Build();
+        var activity2 = _activityBuilder.WithPointsReward(50).Build();
+        var offer = _offerBuilder.WithPointsCost(30).Build();
 
         // Act
         point.Earned(activity1); // +100
@@ -195,7 +195,7 @@ public class PointTests
         point.Spent(offer); // -30
 
         // Assert
-        Assert.Equal(activity1.PointsEarned + activity2.PointsEarned - offer.PointSpent, point.Balance);
+        Assert.Equal(activity1.PointsReward + activity2.PointsReward - offer.PointsCost, point.Balance);
         Assert.Equal(2, point.PointsEarned.Count);
         Assert.Single(point.PointsSpent);
     }
