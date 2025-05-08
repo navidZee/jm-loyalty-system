@@ -2,6 +2,7 @@ using JMLS.Domain;
 using JMLS.RestAPI.Extensions;
 using JMLS.RestAPI.Requests;
 using JMLS.RestAPI.Services;
+using JMLS.RestAPI.Validators;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JMLS.RestAPI.Endpoints;
@@ -24,6 +25,7 @@ public static class CustomersEndpoints
             .ProducesProblem(StatusCodes.Status401Unauthorized);
 
         _ = root.MapPost("/earn", RequestToEarn)
+            .AddEndpointFilter<ValidationFilter<RequestToEarnDto>>()
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)
@@ -31,8 +33,9 @@ public static class CustomersEndpoints
             .WithSummary("Apply customers earned")
             .WithDescription("Apply customers earned")
             .ProducesProblem(StatusCodes.Status401Unauthorized);
-        
+
         _ = root.MapPost("/spent", RequestToSpent)
+            .AddEndpointFilter<ValidationFilter<RequestToSpentDto>>()
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)
@@ -86,7 +89,7 @@ public static class CustomersEndpoints
             return Results.Problem(e.StackTrace, "Error", StatusCodes.Status500InternalServerError);
         }
     }
-    
+
     private static async Task<IResult> RequestToSpent(
         [FromBody] RequestToSpentDto requestToSpentDto,
         [FromKeyedServices("spent")] ICustomerService customerService,
