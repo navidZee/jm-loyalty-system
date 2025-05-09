@@ -15,12 +15,10 @@ services:
     command:
       - start-dev
       - --import-realm
-      - --spi-realm-file-realm-path=/opt/keycloak/data/import/realm-config.json
+      - --spi-realm-file-realm-path=/opt/keycloak/data/import/realm-config.json  
     volumes:
       - keycloak_data:/opt/keycloak/data
-      - type: bind
-        source: ./realm-config.json
-        target: /opt/keycloak/data/import/realm-config.json
+      - ./realm-config.json:/opt/keycloak/data/import/realm-config.json
   app:
     build: .
     container_name: jmls_app
@@ -28,10 +26,12 @@ services:
       - "8080:80"
     depends_on:
       - db
+      - keycloak
     networks:
       - app_network
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__Default=Server=jmls_db;Database=JMLSDb;User Id=sa;Password=YourStrong!Pass123;TrustServerCertificate=True;
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest

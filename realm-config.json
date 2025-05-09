@@ -3,13 +3,26 @@
   "realm": "jmls",
   "enabled": true,
   "displayName": "JMLS Loyalty System",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,  "resetPasswordAllowed": true,
+  "loginTheme": "keycloak",
+  "accountTheme": "keycloak",
+  "adminTheme": "keycloak",
+  "emailTheme": "keycloak",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en"],
+  "defaultLocale": "en",
+  "bruteForceProtected": true,
   "clients": [
-    {
-      "clientId": "my-public-client",
+    {      "clientId": "my-public-client",
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": true,
       "standardFlowEnabled": true,
+      "implicitFlowEnabled": true,
       "directAccessGrantsEnabled": true,
       "webOrigins": [
         "http://localhost:8080"
