@@ -30,3 +30,4 @@ Ensure Docker and Docker Compose are installed before starting.
 
 Register a user via Keycloak before using the endpoints. => OAuth2, implicit . client_id: my-public-client
 
+ActivityId: 1 , OfferId: 1 , ReferenceId : AnyNumber
