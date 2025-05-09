@@ -124,6 +124,8 @@ public static class WebApplicationBuilderExtensions
             var configuration = ConfigurationOptions.Parse(builder.Configuration["Redis:ConnectionString"]!);
             return ConnectionMultiplexer.Connect(configuration);
         });
+        
+        
 
         return builder;
     }

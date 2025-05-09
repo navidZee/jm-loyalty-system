@@ -53,11 +53,5 @@ public class ActivityConfiguration : IEntityTypeConfiguration<Activity>
             .HasColumnName("ModifiedDateTime")
             .IsRequired()
             .HasComment("Timestamp when the offer was last updated");
-
-        builder.HasData(new List<Activity>()
-        {
-            new("Activity 1", ActivityType.Purchases, 100, "Description 1",null),
-            new("Activity 2", ActivityType.SocialMedia, 50, "Description 2",null)
-        });
     }
 }
