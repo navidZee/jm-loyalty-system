@@ -54,5 +54,11 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
             .HasColumnName("ModifiedDateTime")
             .IsRequired()
             .HasComment("Timestamp when the offer was last updated");
+        
+        builder.HasData(new List<Offer>()
+        {
+            new(20, OfferType.Flat, 100000,1, OfferReferenceType.Catalog),
+            new(40, OfferType.Percentage, 100000,1, OfferReferenceType.Catalog)
+        });
     }
 }

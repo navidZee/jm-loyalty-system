@@ -33,7 +33,7 @@ public class Offer : EntityBase
     public decimal Amount { get; private set; }
     public int ReferenceId { get; private set; }
     public OfferReferenceType ReferenceType { get; private set; }
-    public required IReadOnlyList<PointSpent> PointsSpent { get; set; }
+    public IReadOnlyList<PointSpent> PointsSpent { get; set; }
 }
 
 public enum OfferType

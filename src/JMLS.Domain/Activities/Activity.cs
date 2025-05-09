@@ -33,7 +33,7 @@ public class Activity : EntityBase
     public int PointsReward { get; private set; }
     public string Description { get; private set; }
     public TimeSpan? ExpirationPeriod { get; private set; }
-    public required IReadOnlyList<PointEarned> PointsEarned { get; set; }
+    public  IReadOnlyList<PointEarned> PointsEarned { get; set; }
 }
 
 public enum ActivityType

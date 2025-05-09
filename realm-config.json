@@ -1,0 +1,22 @@
+{
+  "id": "jmls",
+  "realm": "jmls",
+  "enabled": true,
+  "displayName": "JMLS Loyalty System",
+  "clients": [
+    {
+      "clientId": "my-public-client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "webOrigins": [
+        "http://localhost:8080"
+      ],
+      "redirectUris": [
+        "http://localhost:8080/*"
+      ]
+    }
+  ]
+}

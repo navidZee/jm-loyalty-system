@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: jmls_keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: dev-file
+    ports:
+      - "8180:8080"
+    networks:
+      - app_network
+    command:
+      - start-dev
+      - --import-realm
+      - --spi-realm-file-realm-path=/opt/keycloak/data/import/realm-config.json
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - type: bind
+        source: ./realm-config.json
+        target: /opt/keycloak/data/import/realm-config.json
   app:
     build: .
     container_name: jmls_app
@@ -25,21 +45,6 @@ services:
       - app_network
     volumes:
       - jmls_sql_data:/var/opt/mssql
-  keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    container_name: jmls_keycloak
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB: dev-file
-    ports:
-      - "8180:8080"
-    networks:
-      - app_network
-    command:
-      - start-dev
-    volumes:
-      - keycloak_data:/opt/keycloak/data
   redis:
     image: redis:alpine
     container_name: jmls_redis
